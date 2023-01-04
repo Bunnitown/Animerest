@@ -22,7 +22,8 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
-      }
+      },
+      "bundleIdentifier": "com.bunnitown.Animerest"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,7 +35,7 @@
         "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.ACCESS_MEDIA_LOCATION"
       ],
-      "package": "com.henrico.maeda.Animerest"
+      "package": "com.bunnitown.Animerest"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -58,7 +59,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "254f40ba-be7b-4a4c-baca-dd1172d96d1e"
+        "projectId": "6e27aeb8-52a6-4bec-80cf-2b2035a9f7a4"
       }
     }
   }
