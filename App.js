@@ -9,27 +9,46 @@ import { useEffect } from 'react';
 import './Globals.js';
 
 import * as MediaLibrary from 'expo-media-library';
-import * as Permissions from 'expo-permissions';
 import * as FileSystem from 'expo-file-system';
 
 // Importando componentes.
 import Main from './components/Main';
+import Profile from './components/Profile';
 import Picture from './components/Picture';
+import Pictures from './components/Pictures';
+import { pushNotification } from './Notification';
 
 // Definindo componente.
 const Stack = createStackNavigator();
 const App = () => {
   useEffect(() => {
+    const getConfirmDownload = async () => {
+      const response = await SecureStore.getItemAsync('confirmDownload');
+      if (!response || response.trim().length == 0)
+        SecureStore.setItemAsync('confirmDownload', 'true');
+      else if (response && response == 'false')
+        global.confirmDownload = 'false';
+      else if (response && response == 'true') global.confirmDownload = 'true';
+    };
+
     const getUsername = async () => {
       const response = await SecureStore.getItemAsync('username');
       if (response && response.trim().length > 0) global.username = response;
       else SecureStore.setItemAsync('username', global.username);
     };
 
+    const getPicture = async () => {
+      const response = await SecureStore.getItemAsync('userpicture');
+      if (response && response.trim().length > 0) global.userpicture = response;
+      else SecureStore.setItemAsync('userpicture', global.userpicture);
+    };
+
+    getConfirmDownload();
     getUsername();
+    getPicture();
   }, []);
 
-  const downloadFile = (uri: string) => {
+  const downloadFile = (uri) => {
     const fileName =
       Math.floor(Math.random() * 8999999999) + 1000000000 + '.png';
     let fileUri = FileSystem.documentDirectory + fileName;
@@ -37,17 +56,31 @@ const App = () => {
       .then(({ uri }) => saveFile(uri, fileName))
       .catch((e) => {
         console.error('ERRO: ' + e);
-        Alert.alert('Downloading', 'Unable to download.');
+        pushNotification('Downloading', 'Unable to download: ' + fileName);
       });
   };
 
-  const saveFile = async (fileUri: string, fileName: string) => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    if (status === 'granted') {
+  const saveFile = async (fileUri, fileName) => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status == 'granted') {
       const asset = await MediaLibrary.createAssetAsync(fileUri);
       await MediaLibrary.createAlbumAsync('Download', asset, false);
-      Alert.alert('Downloading', 'Downloaded file: ' + fileName);
-    } else Alert.alert('Downloading', 'Unable to download.');
+      pushNotification('Downloading', 'Downloaded file: ' + fileName);
+      const response = await SecureStore.getItemAsync('primarily');
+      if (!response || response.trim().length == 0) {
+        SecureStore.setItemAsync('primarily', 'false');
+        Alert.alert('Asking again', 'Do ask again to confirm download?', [
+          {
+            text: 'No',
+            onPress: () => {
+              global.confirmDownload = 'false';
+              SecureStore.setItemAsync('confirmDownload', 'false');
+            },
+          },
+          { text: 'Yes' },
+        ]);
+      }
+    } else pushNotification('Downloading', 'Unable to download: ' + fileName);
   };
 
   return (
@@ -63,7 +96,8 @@ const App = () => {
             elevation: 0,
           },
           headerLeft: () =>
-            route.name != 'Main' && (
+            route.name != 'Main' &&
+            route.name != 'Profile' && (
               <TouchableOpacity
                 style={{ marginLeft: global.screen_width / 42 }}
                 onPress={() => navigation.pop()}>
@@ -74,25 +108,58 @@ const App = () => {
                 />
               </TouchableOpacity>
             ),
-          headerRight: () =>
-            route.name != 'Picture' ? (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginRight: global.screen_width / 42,
+          headerRight: () => (
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity
+                style={{ marginRight: global.screen_width / 42 }}
+                onPress={() => {
+                  route.name == 'Pictures'
+                    ? global.type.trim().length == 0 ||
+                      global.category.trim().length == 0
+                      ? navigation.pop()
+                      : navigation.dispatch(
+                          StackActions.replace('Pictures', {
+                            type: global.type,
+                            category: global.category,
+                          })
+                        )
+                    : navigation.dispatch(StackActions.replace(route.name));
                 }}>
+                <Icon
+                  name="cached"
+                  size={global.screen_width / 20}
+                  color={global.header_iconColor}
+                />
+              </TouchableOpacity>
+              {route.name == 'Picture' ? (
                 <TouchableOpacity
                   style={{ marginRight: global.screen_width / 42 }}
-                  onPress={() =>
-                    navigation.dispatch(StackActions.replace(route.name))
-                  }>
+                  onPress={() => {
+                    if (global.picture.trim().length == 0)
+                      Alert.alert('Downloading', 'Unable to download.');
+                    else if (global.confirmDownload == 'true')
+                      Alert.alert(
+                        'Downloading',
+                        'Do you want to download it?',
+                        [
+                          { text: 'Cancel' },
+                          {
+                            text: 'Download',
+                            onPress: () => downloadFile(global.picture),
+                          },
+                        ]
+                      );
+                    else downloadFile(global.picture);
+                  }}>
                   <Icon
-                    name="cached"
+                    name="file-download"
                     size={global.screen_width / 20}
                     color={global.header_iconColor}
                   />
                 </TouchableOpacity>
+              ) : (
                 <TouchableOpacity
+                  style={{ marginRight: global.screen_width / 42 }}
                   onPress={() =>
                     Alert.alert(
                       'Copyright ©',
@@ -105,25 +172,14 @@ const App = () => {
                     color={global.header_iconColor}
                   />
                 </TouchableOpacity>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={{ marginRight: global.screen_width / 42 }}
-                onPress={() => {
-                  if (global.picture.trim().length == 0)
-                    Alert.alert('Downloading', 'Unable to download.');
-                  else downloadFile(global.picture);
-                }}>
-                <Icon
-                  name="file-download"
-                  size={global.screen_width / 20}
-                  color={global.header_iconColor}
-                />
-              </TouchableOpacity>
-            ),
+              )}
+            </View>
+          ),
         })}>
         <Stack.Screen name="Main" component={Main} />
+        <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Picture" component={Picture} />
+        <Stack.Screen name="Pictures" component={Pictures} />
       </Stack.Navigator>
     </NavigationContainer>
   );

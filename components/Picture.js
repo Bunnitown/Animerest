@@ -8,8 +8,18 @@ const Picture = ({ navigation }) => {
   const [contain, setContain] = useState(false);
 
   const fetchData = async () => {
-    if (global.picture.trim().length == 0) navigation.pop();
-    setPicture(global.picture);
+    const url = global.picture;
+    if (url.trim().length == 0) navigation.pop();
+    else
+      fetch(url)
+        .then((response) => {
+          if (response.status == 404) navigation.pop();
+          else setPicture({ uri: url });
+        })
+        .catch((e) => {
+          console.error('ERRO: ' + e);
+          navigation.pop();
+        });
   };
 
   useEffect(() => fetchData(), []); // eslint-disable-line
@@ -23,7 +33,7 @@ const Picture = ({ navigation }) => {
       }}>
       <Image
         resizeMode={contain ? 'contain' : 'cover'}
-        source={{ uri: picture }}
+        source={picture}
         style={{
           height: '100%',
           borderRadius: global.screen_width / 32,

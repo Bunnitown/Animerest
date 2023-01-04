@@ -1,7 +1,11 @@
 import { Dimensions } from 'react-native';
 
+global.type = '';
 global.picture = '';
+global.category = '';
+global.userpicture = '';
 global.username = 'Guest';
+global.confirmDownload = 'true';
 
 global.screen_width = Dimensions.get('screen').width;
 global.screen_height = Dimensions.get('screen').height;
