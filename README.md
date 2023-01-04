@@ -1,2 +1,3 @@
 # Animerest
-Aplicativo mobile para a exibição de imagens de animes.
+
+Aplicativo mobile inspirado no Pinterest para animes.
