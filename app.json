@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1f1f1f"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,13 +22,12 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
         "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
-      },
-      "bundleIdentifier": "com.bunnitown.Animerest"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/adaptive_icon.png",
+        "backgroundColor": "#1f1f1f"
       },
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -52,14 +51,17 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
-          "color": "#ffffff"
+          "icon": "./assets/notification_icon.png",
+          "color": "#1f1f1f",
+          "sounds": [
+            "./assets/notification_sound.wav"
+          ]
         }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "6e27aeb8-52a6-4bec-80cf-2b2035a9f7a4"
+        "projectId": "62052313-4ae1-4317-956c-8f7b948f03c2"
       }
     }
   }

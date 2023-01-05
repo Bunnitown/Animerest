@@ -41,27 +41,30 @@ const defineSettings = async () => {
   }
 };
 
-const pushNotification = async (title, body) => {
+const pushNotification = async (subtitle, title, body, url = '') => {
   try {
-    cancelNotifications();
-    var trigger = new Date();
-    trigger.setSeconds(trigger.getSeconds() + 1);
     await Notifications.scheduleNotificationAsync({
-      trigger,
       content: {
-        sound: 'chime.aiff',
-        title: title,
+        subtitle: subtitle,
+        title: '☕' + title,
         body: body,
+        sound: true,
+        data: { url: url },
       },
+      trigger: null,
     });
   } catch (exception) {
-    console.error('Não foi possível enviar a notificação: ' + exception);
+    console.error('ERRO: ' + exception);
   }
+
+  cancelNotifications();
 };
 
 const cancelNotifications = async () => {
   try {
     defineSettings();
+    const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+    await delay(200);
     await Notifications.cancelAllScheduledNotificationsAsync();
   } catch (exception) {
     console.error('ERRO: ' + exception);

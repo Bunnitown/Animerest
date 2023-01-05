@@ -211,9 +211,11 @@ const Main = ({ route, navigation }) => {
         <View
           style={{
             flex: 1,
-            padding: global.screen_width / 16,
+            paddingTop: global.screen_width / 16,
+            paddingLeft: global.screen_width / 16,
+            paddingRight: global.screen_width / 16,
           }}>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 0 }}>
             <Text
               numberOfLines={1}
               style={{
@@ -246,7 +248,7 @@ const Main = ({ route, navigation }) => {
                 alignItems: 'center',
                 flexDirection: 'row',
                 padding: global.screen_width / 20,
-                marginTop: global.screen_width / 10,
+                marginTop: global.screen_width / 18,
                 borderRadius: global.screen_width / 32,
                 backgroundColor: global.body_containerColor,
               }}>

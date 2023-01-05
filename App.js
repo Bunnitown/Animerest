@@ -1,7 +1,7 @@
 // Importando bibliotecas.
+import { View, Alert, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { View, Alert, TouchableOpacity } from 'react-native';
 import { StackActions } from '@react-navigation/native';
 import * as SecureStore from 'expo-secure-store';
 import { Icon } from 'react-native-elements';
@@ -52,20 +52,22 @@ const App = () => {
     const fileName =
       Math.floor(Math.random() * 8999999999) + 1000000000 + '.png';
     let fileUri = FileSystem.documentDirectory + fileName;
+    let url = uri;
+
     FileSystem.downloadAsync(uri, fileUri)
-      .then(({ uri }) => saveFile(uri, fileName))
+      .then(({ uri }) => saveFile(uri, fileName, url))
       .catch((e) => {
         console.error('ERRO: ' + e);
-        pushNotification('Downloading', 'Unable to download: ' + fileName);
+        pushNotification('Download', fileName, 'Unable to download.', url);
       });
   };
 
-  const saveFile = async (fileUri, fileName) => {
+  const saveFile = async (fileUri, fileName, url) => {
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status == 'granted') {
       const asset = await MediaLibrary.createAssetAsync(fileUri);
-      await MediaLibrary.createAlbumAsync('Download', asset, false);
-      pushNotification('Downloading', 'Downloaded file: ' + fileName);
+      await MediaLibrary.createAlbumAsync('Animerest', asset, false);
+      pushNotification('Download', fileName, 'Downloaded file.', url);
       const response = await SecureStore.getItemAsync('primarily');
       if (!response || response.trim().length == 0) {
         SecureStore.setItemAsync('primarily', 'false');
@@ -80,7 +82,8 @@ const App = () => {
           { text: 'Yes' },
         ]);
       }
-    } else pushNotification('Downloading', 'Unable to download: ' + fileName);
+    } else
+      pushNotification('Download', fileName, 'No permission to download.', url);
   };
 
   return (
